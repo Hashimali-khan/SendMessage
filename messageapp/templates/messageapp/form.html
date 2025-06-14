@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Send a Message or PDF</title>
+</head>
+<body>
+    <h1>Send a Message or PDF</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="recipient">Recipient (Email or WhatsApp number):</label>
+        <input type="text" name="recipient" required><br>
+        <label for="choice">Send via:</label>
+        <select name="choice" required>
+            <option value="email">Email</option>
+            <option value="whatsapp">WhatsApp</option>
+        </select><br>
+        <label for="action">Action:</label>
+        <select name="action" required>
+            <option value="message">Send Message</option>
+            <option value="pdf">Send PDF</option>
+        </select><br>
+        <div id="messageDiv">
+            <label for="message">Message:</label>
+            <textarea name="message"></textarea><br>
+        </div>
+        <div id="pdfDiv">
+            <label for="pdf_file">PDF File (for Email):</label>
+            <input type="file" name="pdf_file" accept="application/pdf"><br>
+            <label for="pdf_url" id="pdfUrlLabel" style="display:none;">PDF Public URL (for WhatsApp):</label>
+            <input type="text" name="pdf_url" id="pdfUrlInput" placeholder="https://example.com/yourfile.pdf" style="display:none;"><br>
+        </div>
+        <button type="submit">Send</button>
+    </form>
+    {% if status %}
+        <p>{{ status }}</p>
+    {% endif %}
+    <script>
+        // Simple JS to show/hide fields based on action
+        const actionSelect = document.querySelector('select[name="action"]');
+        const messageDiv = document.getElementById('messageDiv');
+        const pdfDiv = document.getElementById('pdfDiv');
+        const choiceSelect = document.querySelector('select[name="choice"]');
+        const pdfUrlLabel = document.getElementById('pdfUrlLabel');
+        const pdfUrlInput = document.getElementById('pdfUrlInput');
+        const pdfFileInput = document.querySelector('input[name="pdf_file"]');
+        
+        function toggleFields() {
+            if (actionSelect.value === 'message') {
+                messageDiv.style.display = '';
+                pdfDiv.style.display = 'none';
+            } else {
+                messageDiv.style.display = 'none';
+                pdfDiv.style.display = '';
+            }
+        }
+
+        function togglePdfFields() {
+            if (actionSelect.value === 'pdf' && choiceSelect.value === 'whatsapp') {
+                pdfUrlLabel.style.display = '';
+                pdfUrlInput.style.display = '';
+                pdfFileInput.style.display = 'none';
+            } else if (actionSelect.value === 'pdf') {
+                pdfUrlLabel.style.display = 'none';
+                pdfUrlInput.style.display = 'none';
+                pdfFileInput.style.display = '';
+            } else {
+                pdfUrlLabel.style.display = 'none';
+                pdfUrlInput.style.display = 'none';
+                pdfFileInput.style.display = 'none';
+            }
+        }
+
+        choiceSelect.addEventListener('change', togglePdfFields);
+        actionSelect.addEventListener('change', toggleFields);
+        toggleFields();
+        togglePdfFields();
+    </script>
+</body>
+</html>
