@@ -20,6 +20,6 @@ LOGGING = {
     },
 }
 
-TWILIO_ACCOUNT_SID = 'your_account_sid'
-TWILIO_AUTH_TOKEN = 'your_auth_token'
-TWILIO_WHATSAPP_NUMBER = 'whatsapp:+14155238886'  # Replace with your Twilio WhatsApp number or sandbox number
+WHATSAPP_API_URL = 'https://graph.facebook.com/v22.0/682992084897059/messages'
+WHATSAPP_TOKEN = 'EAAKOL3EH9QgBO2vH1eK1flf2Ht31STP62geoP5h4WDC36D49cHeFXxMUKZBtQOfH0SvhcwuAMZCRejZAWEUAEwBGgJjKO9zNQZBDQlZAQB41yYcYbQqoUNjIMZCmLerTZCjZBMp5BbRsbrZB9m6ecavOqfNCimOSEPSj7p6flDOqFIgMvTzuqF16NyyPEBdbKcln67vtpa1IrTbRvmleiErRooveeIG5nd3OQXX60cAZDZD'
+WHATSAPP_PHONE_NUMBER_ID = '682992084897059'  # Your WhatsApp phone number ID

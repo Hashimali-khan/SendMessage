@@ -2,9 +2,9 @@ from django.shortcuts import render
 import logging
 from django.core.mail import send_mail, EmailMessage
 from django.conf import settings
-from twilio.rest import Client
 import os
 import tempfile
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -29,14 +29,24 @@ def send_user_message(recipient, message, choice):
             return f"❌ Email sending failed: {e}"
     elif choice == 'whatsapp':
         try:
-            client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-            client.messages.create(
-                body=message,
-                from_=settings.TWILIO_WHATSAPP_NUMBER,
-                to=f'whatsapp:{recipient}'
-            )
-            logger.info(f"WhatsApp message sent to {recipient}")
-            return "✅ WhatsApp message sent!"
+            url = settings.WHATSAPP_API_URL
+            headers = {
+                "Authorization": f"Bearer {settings.WHATSAPP_TOKEN}",
+                "Content-Type": "application/json"
+            }
+            data = {
+                "messaging_product": "whatsapp",
+                "to": recipient,
+                "type": "text",
+                "text": {"body": message}
+            }
+            response = requests.post(url, headers=headers, json=data)
+            if response.status_code == 200 or response.status_code == 201:
+                logger.info(f"WhatsApp message sent to {recipient}")
+                return "✅ WhatsApp message sent!"
+            else:
+                logger.error(f"WhatsApp sending failed: {response.text}")
+                return f"❌ WhatsApp sending failed: {response.text}"
         except Exception as e:
             logger.error(f"WhatsApp sending failed: {e}")
             return f"❌ WhatsApp sending failed: {e}"
@@ -66,15 +76,26 @@ def send_pdf(recipient, pdf_path, choice, subject="PDF Document", body="Please f
 
     elif choice == 'whatsapp':
         try:
-            client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+            url = settings.WHATSAPP_API_URL
+            headers = {
+                "Authorization": f"Bearer {settings.WHATSAPP_TOKEN}",
+                "Content-Type": "application/json"
+            }
             # pdf_path must be a public URL for WhatsApp
-            client.messages.create(
-                body=body,
-                from_=settings.TWILIO_WHATSAPP_NUMBER,
-                to=f'whatsapp:{recipient}',
-                media_url=[pdf_path]  # Must be a public URL
-            )
-            return "✅ WhatsApp PDF sent!"
+            data = {
+                "messaging_product": "whatsapp",
+                "to": recipient,
+                "type": "document",
+                "document": {
+                    "link": pdf_path,
+                    "caption": body
+                }
+            }
+            response = requests.post(url, headers=headers, json=data)
+            if response.status_code == 200 or response.status_code == 201:
+                return "✅ WhatsApp PDF sent!"
+            else:
+                return f"❌ WhatsApp sending failed: {response.text}"
         except Exception as e:
             return f"❌ WhatsApp sending failed: {e}"
 
